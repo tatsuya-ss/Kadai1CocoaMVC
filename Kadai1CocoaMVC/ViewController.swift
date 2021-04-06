@@ -8,10 +8,17 @@
 import UIKit
 
 protocol Calculate {
-    func sum()
+    var result: String { get }
+    
+    func sum(_ number: [Int])
 }
 
 class ViewController: UIViewController {
+    var myModel: Model? {
+        didSet {
+            registerModel()
+        }
+    }
     
     private(set) lazy var myView: View = View()
     
@@ -24,24 +31,57 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
     }
+    
+    private func registerModel() {
+        guard let model = myModel else { return }
+        
+        myView.resultDisplayLabel.text = model.result.description
+        
+        myView.sumButton.addTarget(self,
+                                   action: #selector(onSumButtonTapped),
+                                   for: .touchUpInside)
+        model.notificationCenter.addObserver(forName: .init(rawValue: "result"),
+                                             object: nil,
+                                             queue: nil,
+                                             using: { [unowned self] notification in
+                                                    print("通知中")
+                                                    if let result = notification.userInfo?["result"] as? String {
+                                                        self.myView.resultDisplayLabel.text = "\(result)"
+                                                        print("result \(result)")
+                                                    }
+                                                })
+    }
+    
 
+    @objc func onSumButtonTapped() {
+        let textNumber1 = Int(myView.textField1.text!) ?? 0
+        let textNumber2 = Int(myView.textField2.text!) ?? 0
+        let textNumber3 = Int(myView.textField3.text!) ?? 0
+        let textNumber4 = Int(myView.textField4.text!) ?? 0
+        let textNumber5 = Int(myView.textField5.text!) ?? 0
+        let numberArray  = [textNumber1, textNumber2, textNumber3, textNumber4, textNumber5]
+        myModel?.sum(numberArray)
+        view.endEditing(true)
+    }
 
 }
 
 class Model : Calculate {
     let notificationCenter = NotificationCenter()
-    private(set) var result = "結果" {
+    private(set) var result = "Label" {
         didSet {
+            print("\(result)に更新しました")
             notificationCenter.post(name: .init(rawValue: "result"),
                                     object: nil,
                                     userInfo: ["result": result])
         }
     }
     
-    var textNumberArray: [Int] = []
-    func sum() {
-        let result = textNumberArray.reduce(0, { $0 + $1 })
-        self.result = String(result)
+    
+    func sum(_ number: [Int]) {
+        let sum = number.reduce(0, { $0 + $1 })
+        result = String(sum)
+        print("\(result)計算しました")
     }
 }
 
@@ -79,20 +119,28 @@ class View: UIView {
         
         textField1.borderStyle = .roundedRect
         textField1.layer.borderColor = UIColor.gray.cgColor
+        textField1.keyboardType = .numberPad
+        
         textField2.borderStyle = .roundedRect
         textField2.layer.borderColor = UIColor.gray.cgColor
+        textField2.keyboardType = .numberPad
+        
         textField3.borderStyle = .roundedRect
         textField3.layer.borderColor = UIColor.gray.cgColor
+        textField3.keyboardType = .numberPad
+        
         textField4.borderStyle = .roundedRect
         textField4.layer.borderColor = UIColor.gray.cgColor
+        textField4.keyboardType = .numberPad
+        
         textField5.borderStyle = .roundedRect
         textField5.layer.borderColor = UIColor.gray.cgColor
+        textField5.keyboardType = .numberPad
         
         sumButton.setTitle("Button", for: .normal)
         sumButton.setTitleColor(UIColor.systemBlue, for: .normal)
         
         resultDisplayLabel.textColor = .black
-        resultDisplayLabel.text = "Label"
 
     }
     
