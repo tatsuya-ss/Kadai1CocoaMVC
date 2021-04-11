@@ -45,7 +45,14 @@ class ViewController: UIViewController {
             Int(myView.textField4.text!) ?? 0,
             Int(myView.textField5.text!) ?? 0
         ]
-        myModel?.sum(numberArray)
+        
+        do {
+            try myModel?.sum(numberArray)
+        } catch CalculateError.intOutOfRange {
+            print(CalculateError.intOutOfRange.text)
+        } catch {
+            print("othersError")
+        }
         view.endEditing(true)
     }
 }

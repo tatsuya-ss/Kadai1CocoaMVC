@@ -12,15 +12,27 @@ protocol CalculateModelDelegate : AnyObject {
 }
 
 protocol Calculate {
-    func sum(_ number: [Int])
+    func sum(_ number: [Int]) throws -> Void
+}
+
+enum CalculateError : Error {
+    case intOutOfRange
+    var text: String {
+        switch self {
+        case .intOutOfRange:
+            return "範囲外の計算結果です"
+        }
+    }
 }
 
 
 class CalculateModel : Calculate {
     weak var delegate: CalculateModelDelegate?
     
-    func sum(_ number: [Int]) {
+    func sum(_ number: [Int]) throws -> Void {
+        
         let sum = number.reduce(0, { $0 + $1 })
+        guard sum < Int.max else { throw CalculateError.intOutOfRange }
         delegate?.successCalculate(self, result: sum)
     }
 }
