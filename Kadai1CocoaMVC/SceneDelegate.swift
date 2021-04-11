@@ -20,7 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             assertionFailure()
             return
         }
-        viewController.myModel = Model()
+        viewController.myModel = CalculateModel()
         guard let _ = (scene as? UIWindowScene) else { return }
     }
 
